@@ -21,7 +21,7 @@ services:
       MYSQL_PASSWORD: senha         #CHANGE THIS
     volumes:
       - './zabbix/mysql:/var/lib/data'
-    command: --character-set-server=utf8 --collation-server=utf8_bin    #DEIXA ESSE CHARACTER SET E ESSA COLLATION, APENAS ELAS FUNCIONAM CORRETAMENTE NO ZABBIX / # CASO QUEIRA ALTERAR, POR FAVOR, VISITE A DOCUMENTAÇÃO OFICIAL DO ZABBIX
+    command: --character-set-server=utf8 --collation-server=utf8_bin    #DEIXA ESSE CHARACTER SET E ESSA COLLATION, APENAS ELAS FUNCIONAM CORRETAMENTE NO ZABBIX / # CASO QUEIRA ALTERAR, POR FAVOR, VISITE A DOCUMENTAÇÃO OFICIAL DO ZABBIX...
                                                                         
 #ZABBIX SERVER / ZABBIX BACKEND
 
