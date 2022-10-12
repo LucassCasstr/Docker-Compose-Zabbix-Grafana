@@ -1,0 +1,92 @@
+version: "3.1"
+
+networks:
+  zabbix:
+    driver: bridge
+
+services:
+
+# MYSQL DATABASE
+
+  mysql:
+    networks:
+      - zabbix
+    container_name: mysql
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: senha    #CHANGE THIS
+      MYSQL_DATABASE: zabbix
+      MYSQL_USER: zabbix            #CHANGE THIS
+      MYSQL_PASSWORD: senha         #CHANGE THIS
+    volumes:
+      - './zabbix/mysql:/var/lib/data'
+    command: --character-set-server=utf8 --collation-server=utf8_bin    #DEIXA ESSE CHARACTER SET E ESSA COLLATION, SÓ ELAS FUNCIONAM CORRETAMENTE NO ZABBIX / # CASO QUEIRA ALTERAR, POR FAVOR, VISITE A DOCUMENTAÇÃO OFICIAL DO ZABBIX
+                                                                        
+#ZABBIX SERVER / ZABBIX BACKEND
+
+  zabbix:
+    networks:
+      - zabbix
+    container_name: zabbix-server
+    image: zabbix/zabbix-server-mysql:ubuntu-6.0-latest
+    restart: always
+    links:
+      - mysql
+    ports:
+      - '10050-10050'
+    environment:
+      DB_SERVER_HOST: mysql
+      MYSQL_DATABASE: zabbix       #CHANGE THIS
+      MYSQL_USER: zabbix           #CHANGE THIS
+      MYSQL_PASSWORD: senha        #CHANGE THIS
+    depends_on:
+      - mysql
+    volumes:
+      - /usr/lib/zabbix/alertscripts
+      - /usr/lib/zabbix/externalscripts	
+      - /var/lib/zabbix/modules                              #ALTERA AI OS VOLUMES DA FORMA QUE QUISER
+      - /var/lib/zabbix/enc 
+      - /var/lib/zabbix/ssl/certs
+
+#ZABBIX FRONTEND / ZABBIX WEB
+
+  zabbix-frontend:
+    networks:
+      - zabbix
+    container_name: zabbix-frontend
+    image: zabbix/zabbix-web-nginx-mysql:ubuntu-6.0-latest
+    links:
+      - mysql
+    restart: always
+    ports:
+      - '80:8080'
+      - '443:8443'
+    environment:
+      DB_SERVER_HOST: mysql
+      MYSQL_DATABASE: zabbix       
+      MYSQL_USER: zabbix           #CHANGE THIS
+      MYSQL_PASSWORD: senha        #CHANGE THIS
+      PHP_TZ: America/Fortaleza    #CHANGE THIS
+      ZBX_SERVER_HOST: zabbix-server
+    depends_on:
+      - mysql
+
+#GRAFANA SERV ICE
+
+  grafana:
+    networks:
+      - zabbix
+    container_name: grafana
+    image: grafana/grafana
+    links:
+      - mysql
+      - zabbix
+    restart: always
+    ports:
+      - '3000:3000'
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,alexanderzobnin-zabbix-app,grafana-worldmap-panel,natel-plotly-panel           #Plugins
+    depends_on:
+      - mysql
+      - zabbix
