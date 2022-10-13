@@ -3,8 +3,24 @@ version: "3.1"
 networks:
   zabbix:
     driver: bridge
-
+  mysql:
+    driver: bridge
+  zabbix-frontend:
+    driver: bridge
+  phpmyadmin:
+    driver: bridge
+  
 services:
+
+#PHPMYADMIN (EU NEM SEI PQ TO COLOCANDO ISSO AQUI, MEU CÉREBRO JÁ DERRETEU)
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
 
 # MYSQL DATABASE
 
@@ -72,7 +88,7 @@ services:
     depends_on:
       - mysql
 
-#GRAFANA SERV ICE
+#GRAFANA SERVICE
 
   grafana:
     networks:
