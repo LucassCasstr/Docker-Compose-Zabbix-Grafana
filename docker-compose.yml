@@ -17,6 +17,8 @@ services:
   phpmyadmin:
     image: phpmyadmin
     restart: always
+    networks:
+      - zabbix
     ports:
       - 8080:80
     environment:
@@ -50,7 +52,7 @@ services:
     links:
       - mysql
     ports:
-      - '10050-10050'
+      - '10050:10050'
     environment:
       DB_SERVER_HOST: mysql
       MYSQL_DATABASE: zabbix       #CHANGE THIS
